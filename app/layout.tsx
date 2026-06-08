@@ -30,7 +30,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar user={session?.user || null} />
+        <Navbar user={(session?.user as any) || null} />
         {children}
       </body>
     </html>
