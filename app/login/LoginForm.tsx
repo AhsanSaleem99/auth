@@ -6,7 +6,7 @@ import { Label } from "@radix-ui/react-label";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 
 const GithubButton = () => {
   return (
@@ -36,16 +36,16 @@ const GoogleButton = () => {
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleFormSubmit = async (formData: FormData) => {
     setError(null);
-    setIsLoading(true);
-    const result = await login(formData);
-    if (result?.error) {
-      setError(result.error);
-      setIsLoading(false);
-    }
+    startTransition(async () => {
+      const result = await login(formData);
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
   };
 
   return (
@@ -86,10 +86,10 @@ const LoginForm = () => {
         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isPending}
           className="w-full hover:bg-neutral-700 transition-colors duration-300 ease-in-out cursor-pointer mt-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isPending ? "Logging in..." : "Login"}
         </Button>
         <p className="text-center">
           Don&apos;t have an account?{" "}
