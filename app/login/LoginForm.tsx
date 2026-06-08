@@ -54,9 +54,6 @@ const LoginForm = () => {
         className="bg-neutral-800 p-8 rounded-xl md:rounded-2xl shadow-md w-full max-w-md flex flex-col gap-4"
         action={handleFormSubmit}
       >
-        {error && (
-          <p className="text-red-600 p-3 text-sm my-2 text-center">{error}</p>
-        )}
         <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
         <p className="text-center">Please enter your details to login</p>
         <div>
@@ -83,6 +80,9 @@ const LoginForm = () => {
             className="bg-neutral-700 text-white"
           />
         </div>
+        {error && (
+          <p className="text-red-600 p-2 text-sm my-2 text-center">{error}</p>
+        )}
         <Button
           type="submit"
           className="w-full hover:bg-neutral-700 transition-colors duration-300 ease-in-out cursor-pointer mt-2"
