@@ -26,30 +26,31 @@ const login = async (formData: FormData): Promise<{ error: string } | void> => {
       return { error: "Invalid email or password" };
     }
   } catch (error) {
-    // 1. Next.js ke redirect error ko SAB SE PEHLE pass hone dein
     if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }
 
-    // 2. Auth.js (NextAuth v5) ke errors ko track karein
-    if (error instanceof AuthError) {
-      if (error.type === "CredentialsSignin") {
-        return { error: "Invalid email or password" };
-      }
+    const err = error as { code?: string; message?: string };
+    const errorMessage = err.message || "";
+
+    // 💡 Yahan hum specific codes ko pakrenge jo humne auth.ts me throw kiye hain
+    if (
+      err.code === "fields_missing" ||
+      errorMessage.includes("fields_missing")
+    ) {
+      return { error: "Please fill in all the fields" };
     }
 
-    // 3. Ek backup check (agar typescript strictness tang kare)
-    const err = error as { type?: string; code?: string; message?: string };
     if (
-      err.type === "CredentialsSignin" ||
-      err.code === "CredentialsSignin" ||
-      err.message?.includes("CredentialsSignin")
+      err.code === "invalid_credentials" ||
+      errorMessage.includes("invalid_credentials") ||
+      errorMessage.includes("CredentialsSignin") ||
+      errorMessage.includes("CallbackRouteError")
     ) {
       return { error: "Invalid email or password" };
     }
 
-    // Agar koi bilkul hi anjana network ya database error ho
-    console.error("Actual Auth Error:", error);
+    console.error("Actual Backend Auth Error:", error);
     return { error: "Something went wrong" };
   }
 

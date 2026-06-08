@@ -1,10 +1,18 @@
-import NextAuth from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import connectDB from "./lib/db";
 import User from "./models/User";
 import { compare } from "bcryptjs";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import NextAuth from "next-auth";
+
+class FieldsMissingError extends CredentialsSignin {
+  code = "fields_missing";
+}
+class InvalidCredentialsError extends CredentialsSignin {
+  code = "invalid_credentials";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -29,25 +37,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password as string | undefined;
 
         if (!email || !password) {
-          throw new Error("Please fill in all the fields");
+          throw new FieldsMissingError();
         }
 
         await connectDB();
 
         const user = await User.findOne({ email }).select("+password +role");
 
-        if (!user) {
-          throw new Error("User not found");
-        }
-
-        if (!user.password) {
-          throw new Error("User not found");
+        if (!user || !user.password) {
+          throw new InvalidCredentialsError();
         }
 
         const isPasswordCorrect = await compare(password, user.password);
 
         if (!isPasswordCorrect) {
-          throw new Error("Incorrect password");
+          throw new InvalidCredentialsError();
         }
 
         const userData = {
@@ -69,14 +73,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token?.sub && token?.role) {
         session.user.id = token.sub ?? null;
-        session.user.role = token.role ?? null;
+        session.user.role = (token.role as string) ?? null;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        token.role = user.role;
+        token.role = (user as any).role ?? null;
       }
       return token;
     },
