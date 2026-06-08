@@ -34,6 +34,15 @@ const GoogleButton = () => {
   );
 };
 
+const handleFormSubmit = async (formData: FormData) => {
+  const result = await login(formData);
+  if (result?.error) {
+    console.log(result.error);
+
+    alert(result.error);
+  }
+};
+
 const LoginForm = () => {
   return (
     <div
@@ -42,7 +51,7 @@ const LoginForm = () => {
     >
       <form
         className="bg-neutral-800 p-8 rounded-xl md:rounded-2xl shadow-md w-full max-w-md flex flex-col gap-4"
-        action={login}
+        action={handleFormSubmit}
       >
         <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
         <p className="text-center">Please enter your details to login</p>

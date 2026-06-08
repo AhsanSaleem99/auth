@@ -4,11 +4,11 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { redirect } from "next/navigation";
 import { hash } from "bcryptjs";
-import { CredentialsSignin } from "next-auth";
+import { AuthError, CredentialsSignin } from "next-auth";
 import { signIn, signOut } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-const login = async (formData: FormData): Promise<void> => {
+const login = async (formData: FormData): Promise<{ error: string } | void> => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -16,15 +16,27 @@ const login = async (formData: FormData): Promise<void> => {
     throw new Error("Please fill in all the fields");
   }
   try {
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       redirect: false,
       callbackUrl: "/",
       email,
       password,
     });
+    if (result?.error) {
+      return { error: "Invalid email or password" };
+    }
   } catch (error) {
-    const newError = error as CredentialsSignin;
-    throw newError.cause;
+    if (error instanceof AuthError) {
+      if (error.type === "CredentialsSignin") {
+        return { error: "Invalid email or password" };
+      }
+    }
+
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+      throw error;
+    }
+
+    return { error: "Something went wrong" };
   }
 
   redirect("/");
