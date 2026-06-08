@@ -37,6 +37,8 @@ const GoogleButton = () => {
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleFormSubmit = async (formData: FormData) => {
     setError(null);
@@ -67,6 +69,8 @@ const LoginForm = () => {
             type="email"
             id="email"
             name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="bg-neutral-700 text-white "
           />
@@ -79,6 +83,8 @@ const LoginForm = () => {
             type="password"
             id="password"
             name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             className="bg-neutral-700 text-white"
           />
