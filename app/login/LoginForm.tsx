@@ -83,7 +83,6 @@ const LoginForm = () => {
             className="bg-neutral-700 text-white"
           />
         </div>
-        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
         <Button
           type="submit"
           disabled={isPending}
@@ -91,6 +90,7 @@ const LoginForm = () => {
         >
           {isPending ? "Logging in..." : "Login"}
         </Button>
+        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
         <p className="text-center">
           Don&apos;t have an account?{" "}
           <Link
