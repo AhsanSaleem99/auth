@@ -6,7 +6,7 @@ import { Label } from "@radix-ui/react-label";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const GithubButton = () => {
   return (
@@ -34,16 +34,17 @@ const GoogleButton = () => {
   );
 };
 
-const handleFormSubmit = async (formData: FormData) => {
-  const result = await login(formData);
-  if (result?.error) {
-    console.log(result.error);
-
-    alert(result.error);
-  }
-};
-
 const LoginForm = () => {
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFormSubmit = async (formData: FormData) => {
+    setError(null);
+    const result = await login(formData);
+    if (result?.error) {
+      setError(result.error);
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-gradient-to-b from-neutral-950 to-neutral-900
@@ -53,6 +54,11 @@ const LoginForm = () => {
         className="bg-neutral-800 p-8 rounded-xl md:rounded-2xl shadow-md w-full max-w-md flex flex-col gap-4"
         action={handleFormSubmit}
       >
+        {error && (
+          <div className="bg-red-100 text-red-600 p-3 rounded-md text-sm my-2 text-center border border-red-200">
+            {error}
+          </div>
+        )}
         <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
         <p className="text-center">Please enter your details to login</p>
         <div>
