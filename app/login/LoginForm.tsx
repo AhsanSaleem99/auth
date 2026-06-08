@@ -80,9 +80,7 @@ const LoginForm = () => {
             className="bg-neutral-700 text-white"
           />
         </div>
-        {error && (
-          <p className="text-red-600 p-2 text-sm my-2 text-center">{error}</p>
-        )}
+        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
         <Button
           type="submit"
           className="w-full hover:bg-neutral-700 transition-colors duration-300 ease-in-out cursor-pointer mt-2"
