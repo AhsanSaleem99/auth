@@ -4,7 +4,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { redirect } from "next/navigation";
 import { hash } from "bcryptjs";
-import { AuthError, CredentialsSignin } from "next-auth";
+import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -26,16 +26,30 @@ const login = async (formData: FormData): Promise<{ error: string } | void> => {
       return { error: "Invalid email or password" };
     }
   } catch (error) {
+    // 1. Next.js ke redirect error ko SAB SE PEHLE pass hone dein
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+      throw error;
+    }
+
+    // 2. Auth.js (NextAuth v5) ke errors ko track karein
     if (error instanceof AuthError) {
       if (error.type === "CredentialsSignin") {
         return { error: "Invalid email or password" };
       }
     }
 
-    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
-      throw error;
+    // 3. Ek backup check (agar typescript strictness tang kare)
+    const err = error as { type?: string; code?: string; message?: string };
+    if (
+      err.type === "CredentialsSignin" ||
+      err.code === "CredentialsSignin" ||
+      err.message?.includes("CredentialsSignin")
+    ) {
+      return { error: "Invalid email or password" };
     }
 
+    // Agar koi bilkul hi anjana network ya database error ho
+    console.error("Actual Auth Error:", error);
     return { error: "Something went wrong" };
   }
 
