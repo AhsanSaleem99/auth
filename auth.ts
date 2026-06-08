@@ -7,6 +7,22 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 
+declare module "next-auth" {
+  interface User {
+    role?: string | null;
+  }
+
+  interface Session {
+    user: {
+      id: string;
+      role?: string | null;
+    } & import("next-auth").DefaultSession["user"];
+  }
+  interface JWT {
+    role?: string | null;
+  }
+}
+
 class FieldsMissingError extends CredentialsSignin {
   code = "fields_missing";
 }
@@ -71,16 +87,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async session({ session, token }) {
-      if (token?.sub && token?.role) {
-        session.user.id = token.sub ?? null;
-        session.user.role = (token.role as string) ?? null;
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
       }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as string; // ✅ Ab yahan koi red line nahi aayegi
+      }
+
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id;
-        token.role = (user as any).role ?? null;
+        token.role = user.role; // ✅ Ab yahan bhi red line nahi aayegi
       }
       return token;
     },
