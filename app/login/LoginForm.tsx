@@ -36,12 +36,15 @@ const GoogleButton = () => {
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (formData: FormData) => {
     setError(null);
+    setIsLoading(true);
     const result = await login(formData);
     if (result?.error) {
       setError(result.error);
+      setIsLoading(false);
     }
   };
 
@@ -83,9 +86,10 @@ const LoginForm = () => {
         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
         <Button
           type="submit"
-          className="w-full hover:bg-neutral-700 transition-colors duration-300 ease-in-out cursor-pointer mt-2"
+          disabled={isLoading}
+          className="w-full hover:bg-neutral-700 transition-colors duration-300 ease-in-out cursor-pointer mt-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Login
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
         <p className="text-center">
           Don&apos;t have an account?{" "}
