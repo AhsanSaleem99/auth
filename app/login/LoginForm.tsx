@@ -55,9 +55,9 @@ const LoginForm = () => {
         action={handleFormSubmit}
       >
         {error && (
-          <div className="bg-red-100 text-red-600 p-3 rounded-md text-sm my-2 text-center border border-red-200">
+          <p className="bg-red-100 text-red-600 p-3 rounded-md text-sm my-2 text-center border border-red-200">
             {error}
-          </div>
+          </p>
         )}
         <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
         <p className="text-center">Please enter your details to login</p>
